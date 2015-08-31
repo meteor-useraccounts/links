@@ -64,8 +64,8 @@ _.extend(UALinkPlugin.prototype, {
     var signUpLink = new UALinkModule(
       'signUpLink',
       70,
-      'signUp',
       'sign-up-link',
+      'signUp',
       {
         default: {
           prefix: 'Don\'t have an account?',
@@ -78,6 +78,7 @@ _.extend(UALinkPlugin.prototype, {
     self._modules.push(signInLink);
     self._modules.push(signUpLink);
 
+    UALog.trace('Registering modules');
     _.each(self._modules, function(module) {
       UserAccounts.registerModule(module);
     });
