@@ -10,4 +10,4 @@
 //  Create the logger for this package
 // ------------------------------------
 UALog = new Logger('useraccounts:links');
-UserAccounts.setLogLevel('links', UALog);
+UserAccounts.setLogLevel(UALog);
