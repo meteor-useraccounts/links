@@ -13,5 +13,4 @@ UALog.trace('Loading main.js');
 
 
 UALog.trace('Adding links plugin');
-var links = new UALinkPlugin();
-UserAccounts.registerPlugin(links);
+UserAccounts.registerPlugin(new UALinkPlugin());
