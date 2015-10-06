@@ -15,11 +15,12 @@ UALog.trace('Loading link_plugin.js');
 
 
 // define the UALinkPlugin class
-UALinkPlugin = function () {
-  // Call the parent constructor
-  UAPlugin.call(this);
+UALinkPlugin = function _UALinkPlugin() {
+  var self = this;
 
-  this._id = 'links';
+  UAPlugin.call(self);
+
+  self._id = 'links';
 };
 
 
@@ -34,40 +35,42 @@ _.extend(UALinkPlugin.prototype, {
 
   _modules: [],
 
-  configure: function(options) {
+  configure: function configure(options) {
     UALog.trace('configure ' + this._id);
     // console.log(options);
 
     this.text = _.defaults(options.text || {}, this.text);
   },
 
-  init: function() {
+  init: function init() {
+    var self = this;
+    var signInLink;
+    var signUpLink;
+
     UALog.trace('Creating signInLink module');
 
-    var self = this;
-
-    var signInLink = new UALinkModule(
+    signInLink = new UALinkModule(
       'signInLink',
       60,
       'sign-in-link',
       'signIn',
       {
-        default: {
+        'default': {
           prefix: 'If you already have an account',
           suffix: '',
           text: 'sign in',
-        }
+        },
       }
     );
 
     UALog.trace('Creating signUpLink module');
-    var signUpLink = new UALinkModule(
+    signUpLink = new UALinkModule(
       'signUpLink',
       70,
       'sign-up-link',
       'signUp',
       {
-        default: {
+        'default': {
           prefix: 'Don\'t have an account?',
           suffix: '',
           text: 'Register',
@@ -79,47 +82,49 @@ _.extend(UALinkPlugin.prototype, {
     self._modules.push(signUpLink);
 
     UALog.trace('Registering modules');
-    _.each(self._modules, function(module) {
+    _.each(self._modules, function regModule(module) {
       UserAccounts.registerModule(module);
     });
 
     if (Meteor.isClient) {
       Template.uaForm.events({
-        'click .ua-link a': function(e){
+        'click .ua-link a': function clickUALink(e) {
           e.preventDefault();
           self.linkClick(this.instance, this.module);
-        }
+        },
       });
     }
   },
 
-  linkClick: function(uaTmpl, module) {
+  linkClick: function linkClick(uaTmpl, module) {
+    var callback;
+    var callbacks;
     var route = module.targetState;
-    var callbacks = _.map(UserAccounts.links._clickCallbacks, function(cb) {
+
+    callbacks = _.map(UserAccounts.links._clickCallbacks, function lcb(cb) {
       return cb(uaTmpl, route);
     });
-    var callback = _.find(callbacks, function(cb) {return cb;});
+    callback = _.find(callbacks, function fcb(cb) {return cb; });
     if (callback) {
       callback();
-    }
-    else {
+    } else {
       uaTmpl.setState(module.targetState);
     }
   },
 
-  onClick: function(callback) {
+  onClick: function onClick(callback) {
     check(callback, Function);
     this._clickCallbacks.push(callback);
   },
 
-  uninit: function(){
+  uninit: function uninit() {
     UALog.trace('Removing modules');
-    _.each(this._modules, function(module) {
+    _.each(this._modules, function remMod(module) {
       UserAccounts.removeModule(module._id);
     });
 
     if (Meteor.isCLient) {
       delete Template.uaForm.__eventMaps['click .ua-link a'];
     }
-  }
+  },
 });
